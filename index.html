@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Find Location</title>
+
+    <!--ADD YOU API KEY HERE, REMOVE CURLY BRACKETS AFTER  key=  -->
+    <!--IF YOU DON'T ALREADY HAVE A GOOGLE MAPS OR GOOGLE PLACES API, 
+      YOU CAN GET ONE HERE: https://developers.google.com/maps/documentation/javascript/get-api-key -->
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key={INSERT API-KEY}"
+    ></script>
+
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+  </head>
+  <style>
+    #form {
+      padding-top: 5%;
+      text-align: center;
+    }
+
+    #addrs {
+      display: inline-block;
+      width: 40%;
+      height: 38px;
+    }
+
+    #results {
+      padding-top: 10%;
+    }
+  </style>
+
+  <body>
+    <div class="containter">
+      <div id="form">
+        <p>
+          This tool can get you up and running with a reverse GeoLocation
+          function
+        </p>
+        <p>
+          It uses the browsers geolocation method to gather the latitude and
+          longitude coordinates <br />
+          and then uses the google Maps API to return an address
+        </p>
+        <p>
+          Simply Add your own API key to the script import. <br />
+          Note: API keys should not be stored client-side. This is purely
+          demonstrational
+        </p>
+        <br />
+        <input class="input-group-text" type="text" id="addrs" readonly />
+        <button id="btn" type="submit" class="btn btn-primary">Find Me</button>
+        <div id="results"></div>
+      </div>
+    </div>
+
+    <script>
+      const myBtn = document.getElementById('btn');
+      const dsply = document.getElementById('addrs');
+      let res = document.getElementById('results');
+
+      myBtn.addEventListener('click', getLocation);
+
+      function getLocation() {
+        var options = {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 10000
+        };
+
+        function success(position) {
+          const lati = position.coords.latitude;
+          const longi = position.coords.longitude;
+
+          let address = '';
+
+          let geocoder = new google.maps.Geocoder();
+
+          let latlng = { lat: parseFloat(lati), lng: parseFloat(longi) };
+          console.log(latlng);
+
+          geocoder.geocode({ location: latlng }, function(results, status) {
+            if (status === 'OK') {
+              if (results[0]) {
+                address = results[0].formatted_address;
+
+                let addrs = results[0].address_components;
+
+                dsply.value = address;
+                res.innerHTML = `<h2>Your Location is: ${address} </h2>`;
+              } else {
+                console.log('no results found. ');
+              }
+            } else {
+              console.log('Geocoder failed due to: ' + status);
+            }
+          });
+        }
+
+        function error() {
+          console.warn(`ERROR(${err.code}): ${err.message}`);
+        }
+
+        navigator.geolocation.getCurrentPosition(success, error, options);
+      }
+    </script>
+  </body>
+</html>
